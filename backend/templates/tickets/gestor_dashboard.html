@@ -1,0 +1,820 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Control Técnico (Gestor) | PoinTécnico{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ── Header Wrapper ── */
+    .dash-header-wrap {
+        background: linear-gradient(135deg, rgba(220,38,38,0.12) 0%, rgba(20,20,20,0.85) 100%);
+        border: 1px solid rgba(220,38,38,0.25);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .dash-header-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #dc2626, #f59e0b, transparent);
+    }
+
+    /* ── Metric Cards ── */
+    .stat-card-dark {
+        background: #141414 !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .stat-card-dark:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+    }
+    .stat-label {
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        display: block;
+    }
+    .stat-value {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-top: 8px;
+        margin-bottom: 0;
+    }
+
+    /* ── Tabs Navigation ── */
+    .gestor-tab-nav {
+        display: flex;
+        gap: 8px;
+        background: #111111;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        padding: 6px;
+    }
+    .gestor-tab-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    /* Tab: Todos */
+    .tab-todos-inactive {
+        background: rgba(255,255,255,0.04);
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+    .tab-todos-inactive:hover {
+        background: rgba(255,255,255,0.1);
+        color: #ffffff !important;
+    }
+    .tab-todos-active {
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%) !important;
+        color: #ffffff !important;
+        border: 1px solid #ef4444 !important;
+        box-shadow: 0 4px 15px rgba(220,38,38,0.5) !important;
+    }
+
+    /* Tab: Cola Sin Asignar (Amarillo/Ámbar de alto contraste) */
+    .tab-warn-inactive {
+        background: rgba(245,158,11,0.12) !important;
+        color: #fef08a !important;
+        border: 1px solid rgba(245,158,11,0.35) !important;
+    }
+    .tab-warn-inactive:hover {
+        background: rgba(245,158,11,0.22) !important;
+        color: #ffffff !important;
+        border-color: rgba(245,158,11,0.6) !important;
+    }
+    .tab-warn-active {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        color: #000000 !important;
+        font-weight: 800 !important;
+        border: 1px solid #fbbf24 !important;
+        box-shadow: 0 4px 15px rgba(245,158,11,0.45) !important;
+    }
+
+    /* Tab: Asignados a Mí (Azul vibrante de alto contraste) */
+    .tab-info-inactive {
+        background: rgba(59,130,246,0.12) !important;
+        color: #93c5fd !important;
+        border: 1px solid rgba(59,130,246,0.35) !important;
+    }
+    .tab-info-inactive:hover {
+        background: rgba(59,130,246,0.22) !important;
+        color: #ffffff !important;
+        border-color: rgba(59,130,246,0.6) !important;
+    }
+    .tab-info-active {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border: 1px solid #60a5fa !important;
+        box-shadow: 0 4px 15px rgba(37,99,235,0.45) !important;
+    }
+
+    /* Badges numéricos en tabs */
+    .tab-counter {
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    /* ── Barra de Eliminación y Acciones en Lote ── */
+    .bulk-action-bar {
+        background: linear-gradient(135deg, rgba(220,38,38,0.15) 0%, rgba(25,12,12,0.95) 100%);
+        border: 1px solid rgba(220,38,38,0.4);
+        border-radius: 12px;
+        padding: 12px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 20px rgba(220,38,38,0.25);
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+    .bulk-action-bar.show {
+        display: flex !important;
+    }
+
+    /* ── Table Styling Ultra-Legible ── */
+    .gestor-table-card {
+        background: #121212 !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .gestor-table-card .card-header-custom {
+        padding: 16px 22px;
+        background: #171717;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .table-dark-custom {
+        width: 100%;
+        margin-bottom: 0;
+        color: #f1f5f9;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .table-dark-custom thead th {
+        background: #1a1a1a !important;
+        color: #94a3b8 !important;
+        font-size: 0.74rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.7px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+        padding: 14px 14px !important;
+    }
+    .table-dark-custom tbody tr {
+        background: #141414;
+        transition: background-color 0.15s ease;
+    }
+    .table-dark-custom tbody tr:nth-child(even) {
+        background: #181818;
+    }
+    .table-dark-custom tbody tr:hover {
+        background: rgba(220,38,38,0.1) !important;
+    }
+    .table-dark-custom tbody td {
+        padding: 16px 14px !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        color: #f1f5f9 !important;
+    }
+
+    /* Checkbox */
+    .ticket-cb {
+        width: 18px;
+        height: 18px;
+        accent-color: #dc2626;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    /* Ticket ID Tag */
+    .ticket-id-tag {
+        display: inline-block;
+        background: rgba(220,38,38,0.15);
+        border: 1px solid rgba(220,38,38,0.4);
+        color: #fca5a5;
+        font-weight: 800;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: monospace;
+    }
+
+    /* Ticket Title & Desc */
+    .ticket-title-link {
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: block;
+        line-height: 1.35;
+        transition: color 0.15s;
+    }
+    .ticket-title-link:hover {
+        color: #f87171 !important;
+        text-decoration: underline;
+    }
+    .ticket-desc-text {
+        font-size: 0.82rem;
+        color: #cbd5e1 !important;
+        margin-top: 4px;
+        line-height: 1.4;
+    }
+
+    /* Solicitante */
+    .solicitante-name {
+        font-weight: 700;
+        color: #ffffff !important;
+        font-size: 0.88rem;
+    }
+    .solicitante-dept {
+        font-size: 0.78rem;
+        color: #94a3b8 !important;
+        margin-top: 2px;
+    }
+
+    /* Categoría */
+    .cat-pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #f1f5f9;
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* Técnico asignado badges */
+    .badge-sin-asignar {
+        background: rgba(245,158,11,0.2) !important;
+        color: #fef08a !important;
+        border: 1px solid rgba(245,158,11,0.6) !important;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        box-shadow: 0 0 10px rgba(245,158,11,0.15);
+        white-space: nowrap;
+    }
+    .badge-asignado-yo {
+        background: rgba(37,99,235,0.25) !important;
+        color: #93c5fd !important;
+        border: 1px solid rgba(37,99,235,0.6) !important;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+    .badge-asignado-otro {
+        background: rgba(255,255,255,0.06) !important;
+        color: #f1f5f9 !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    /* Fecha */
+    .ticket-date-text {
+        color: #cbd5e1 !important;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* ── Botones de Acción en Fila ── */
+    .btn-action-assign {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        border: 1px solid #10b981;
+        color: #ffffff !important;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 10px rgba(16,185,129,0.3);
+        white-space: nowrap;
+    }
+    .btn-action-assign:hover {
+        background: #10b981;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(16,185,129,0.5);
+    }
+
+    .btn-action-attend {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+        border: 1px solid #ef4444;
+        color: #ffffff !important;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: 0 3px 10px rgba(220,38,38,0.35);
+        white-space: nowrap;
+    }
+    .btn-action-attend:hover {
+        background: #ef4444;
+        color: #ffffff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(220,38,38,0.55);
+    }
+
+    /* Botón Eliminar Ticket Individual */
+    .btn-action-delete {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(220, 38, 38, 0.15);
+        border: 1px solid rgba(220, 38, 38, 0.5);
+        color: #fca5a5 !important;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .btn-action-delete:hover {
+        background: #dc2626;
+        color: #ffffff !important;
+        border-color: #ef4444;
+        box-shadow: 0 4px 14px rgba(220,38,38,0.55);
+        transform: translateY(-1px);
+    }
+
+    /* Empty state */
+    .empty-state-box {
+        padding: 60px 20px;
+        text-align: center;
+    }
+    .empty-state-box i {
+        font-size: 3rem;
+        color: #4ade80;
+        display: block;
+        margin-bottom: 16px;
+    }
+    .empty-state-box h5 {
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+    .empty-state-box p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- ════════════ ENCABEZADO DEL PANEL DE GESTOR ════════════ -->
+    <div class="dash-header-wrap d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="fw-bold mb-0 text-white" style="font-family: 'Poppins', sans-serif;">
+                    Mesa de Soporte y Asignación
+                </h2>
+                {% if user.is_admin_rol %}
+                    <span class="badge-rol badge-rol-admin">Rol: Administrador</span>
+                {% else %}
+                    <span class="badge-rol badge-rol-gestor">Rol: Gestor Técnico</span>
+                {% endif %}
+            </div>
+            <p style="color: #cbd5e1; margin: 0; font-size: 0.92rem;">
+                Control de incidencias en tiempo real, asignación operativa de técnicos y eliminación de tickets para Gestores y Administradores.
+            </p>
+        </div>
+        <div class="text-md-end">
+            <div style="font-size: 0.78rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Usuario en Sesión:</div>
+            <strong class="text-white fs-6">{{ user.get_full_name|default:user.username }}</strong>
+            {% if user.is_admin_rol %}
+                <span class="badge-rol badge-rol-admin ms-1">Acceso Total</span>
+            {% elif user.especialidad %}
+                <span class="badge-rol badge-rol-gestor ms-1">{{ user.especialidad }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ════════════ TARJETAS DE INDICADORES ════════════ -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center">
+                <span class="stat-label" style="color: #94a3b8;">Total en Cola</span>
+                <div class="stat-value text-white">{{ total_pendientes }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(245,158,11,0.3) !important;">
+                <span class="stat-label" style="color: #fde047;">Cola Sin Asignar</span>
+                <div class="stat-value" style="color: #fde047;">{{ sin_asignar_count }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(59,130,246,0.3) !important;">
+                <span class="stat-label" style="color: #93c5fd;">Mis Casos Asignados</span>
+                <div class="stat-value" style="color: #93c5fd;">{{ mis_asignados_count }}</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(16,185,129,0.3) !important;">
+                <span class="stat-label" style="color: #6ee7b7;">Total Resueltos</span>
+                <div class="stat-value" style="color: #6ee7b7;">{{ resueltos_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════ BARRA DE ELIMINACIÓN EN LOTE (APARECE AL SELECCIONAR TICKETS) ════════════ -->
+    <div id="bulkActionBar" class="bulk-action-bar">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-shield-exclamation text-danger fs-4"></i>
+            <div>
+                <strong id="selectedCountText" class="text-white d-block">0 tickets seleccionados</strong>
+                <span style="font-size: 0.8rem; color: #cbd5e1;">Acción administrativa / gestor sobre los tickets seleccionados</span>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-sm btn-outline-light px-3" onclick="deselectAll()">
+                <i class="bi bi-x-circle me-1"></i> Desmarcar todos
+            </button>
+            <button type="button" class="btn btn-sm btn-danger px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#bulkDeleteModal">
+                <i class="bi bi-trash3-fill me-1"></i> Eliminar Seleccionados
+            </button>
+        </div>
+    </div>
+
+    <!-- ════════════ PANEL PRINCIPAL: TABS + TABLA ════════════ -->
+    <div class="gestor-table-card">
+        <!-- Cabecera con tabs y filtros -->
+        <div class="card-header-custom d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <!-- Tabs -->
+            <div class="gestor-tab-nav">
+                <!-- Tab: Todos los Tickets -->
+                <a class="gestor-tab-link {% if vista_actual == 'todos' %}tab-todos-active{% else %}tab-todos-inactive{% endif %}" href="?vista=todos">
+                    <i class="bi bi-grid-fill"></i> Todos los Tickets
+                </a>
+
+                <!-- Tab: Cola Sin Asignar -->
+                <a class="gestor-tab-link {% if vista_actual == 'sin_asignar' %}tab-warn-active{% else %}tab-warn-inactive{% endif %}" href="?vista=sin_asignar">
+                    <i class="bi bi-inbox-fill"></i> Cola Sin Asignar
+                    {% if sin_asignar_count > 0 %}
+                        <span class="tab-counter" style="{% if vista_actual == 'sin_asignar' %}background: #000; color: #fde047;{% else %}background: #dc2626; color: #fff;{% endif %}">
+                            {{ sin_asignar_count }}
+                        </span>
+                    {% endif %}
+                </a>
+
+                <!-- Tab: Asignados a Mí -->
+                <a class="gestor-tab-link {% if vista_actual == 'mis_tickets' %}tab-info-active{% else %}tab-info-inactive{% endif %}" href="?vista=mis_tickets">
+                    <i class="bi bi-person-workspace"></i> Asignados a Mí
+                    {% if mis_asignados_count > 0 %}
+                        <span class="tab-counter" style="{% if vista_actual == 'mis_tickets' %}background: #fff; color: #1d4ed8;{% else %}background: #2563eb; color: #fff;{% endif %}">
+                            {{ mis_asignados_count }}
+                        </span>
+                    {% endif %}
+                </a>
+            </div>
+
+            <!-- Filtros combinados -->
+            <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
+                <input type="hidden" name="vista" value="{{ vista_actual }}">
+                <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 150px; background-color: #1a1a1a; color: #ffffff; border-color: rgba(255,255,255,0.15);">
+                    <option value="">Estado: Todos</option>
+                    {% for valor, label in estados_disponibles %}
+                        <option value="{{ valor }}" {% if estado_filtro == valor %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <select name="prioridad" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 150px; background-color: #1a1a1a; color: #ffffff; border-color: rgba(255,255,255,0.15);">
+                    <option value="">Prioridad: Todas</option>
+                    {% for valor, label in prioridades_disponibles %}
+                        <option value="{{ valor }}" {% if prioridad_filtro == valor %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if estado_filtro or prioridad_filtro %}
+                    <a href="?vista={{ vista_actual }}" style="display: inline-flex; align-items: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 6px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; text-decoration: none;" title="Limpiar filtros">
+                        <i class="bi bi-x-circle me-1"></i> Limpiar
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Tabla -->
+        {% if tickets %}
+            <div class="table-responsive">
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <!-- Checkbox general para seleccionar lote -->
+                            <th style="width: 44px;" class="ps-4 text-center">
+                                <input type="checkbox" id="selectAllCheckbox" class="ticket-cb" onchange="toggleSelectAll(this)" title="Seleccionar todos los tickets">
+                            </th>
+                            <th>ID</th>
+                            <th>Incidencia / Requerimiento</th>
+                            <th>Solicitante</th>
+                            <th>Categoría</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Técnico Asignado</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <!-- Checkbox de selección individual -->
+                            <td class="ps-4 text-center">
+                                <input type="checkbox" name="ticket_ids" value="{{ ticket.id }}" class="ticket-cb ticket-row-cb" onchange="updateSelectedCount()">
+                            </td>
+
+                            <!-- ID -->
+                            <td>
+                                <span class="ticket-id-tag">#{{ ticket.id|stringformat:"04d" }}</span>
+                            </td>
+
+                            <!-- Incidencia -->
+                            <td style="max-width: 250px;">
+                                <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="ticket-title-link">
+                                    {{ ticket.titulo }}
+                                </a>
+                                <div class="ticket-desc-text">
+                                    {{ ticket.descripcion|truncatewords:9 }}
+                                </div>
+                            </td>
+
+                            <!-- Solicitante -->
+                            <td>
+                                <div class="solicitante-name">{{ ticket.usuario_creador.get_full_name|default:ticket.usuario_creador.username }}</div>
+                                <div class="solicitante-dept">{{ ticket.usuario_creador.departamento|default:"Sin área" }}</div>
+                            </td>
+
+                            <!-- Categoría -->
+                            <td>
+                                <span class="cat-pill-badge">
+                                    <i class="bi bi-tag-fill" style="color: #dc2626;"></i>
+                                    {{ ticket.categoria.nombre }}
+                                </span>
+                            </td>
+
+                            <!-- Prioridad -->
+                            <td>
+                                {% if ticket.prioridad == 'BAJA' %}
+                                    <span class="badge badge-priority badge-priority-baja">Baja</span>
+                                {% elif ticket.prioridad == 'MEDIA' %}
+                                    <span class="badge badge-priority badge-priority-media">Media</span>
+                                {% elif ticket.prioridad == 'ALTA' %}
+                                    <span class="badge badge-priority badge-priority-alta">Alta</span>
+                                {% else %}
+                                    <span class="badge badge-priority badge-priority-critica">Crítica</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Estado -->
+                            <td>
+                                {% if ticket.estado == 'ABIERTO' %}
+                                    <span class="badge-status badge-status-abierto"><i class="bi bi-clock me-1"></i>Abierto</span>
+                                {% elif ticket.estado == 'EN_PROCESO' %}
+                                    <span class="badge-status badge-status-en_proceso"><i class="bi bi-gear-fill me-1"></i>En Diagnóstico</span>
+                                {% elif ticket.estado == 'RESUELTO' %}
+                                    <span class="badge-status badge-status-resuelto"><i class="bi bi-check-circle-fill me-1"></i>Resuelto</span>
+                                {% else %}
+                                    <span class="badge-status badge-status-cerrado"><i class="bi bi-archive-fill me-1"></i>Cerrado</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Técnico Asignado -->
+                            <td>
+                                {% if ticket.tecnico_asignado %}
+                                    {% if ticket.tecnico_asignado == user %}
+                                        <span class="badge-asignado-yo">
+                                            <i class="bi bi-person-check-fill"></i> Asignado a Mí
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-asignado-otro">
+                                            <i class="bi bi-person-fill"></i> {{ ticket.tecnico_asignado.username }}
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge-sin-asignar">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Sin Asignar
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Fecha -->
+                            <td>
+                                <span class="ticket-date-text">{{ ticket.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                            </td>
+
+                            <!-- Acciones (Asignarme, Atender, Eliminar) -->
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-2 align-items-center">
+                                    {% if not ticket.tecnico_asignado %}
+                                        <form method="post" action="{% url 'tickets:gestor_asignar' ticket.pk %}" class="d-inline m-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-action-assign" title="Autoasignarme este ticket">
+                                                <i class="bi bi-person-check-fill"></i> Asignarme
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="btn-action-attend" title="Gestionar y atender caso">
+                                        <i class="bi bi-pencil-square"></i> Atender
+                                    </a>
+
+                                    <!-- Botón de Eliminar Ticket para Gestores y Administradores -->
+                                    <button type="button" class="btn-action-delete" data-bs-toggle="modal" data-bs-target="#deleteSingleModal{{ ticket.id }}" title="Eliminar este ticket permanentemente">
+                                        <i class="bi bi-trash3-fill"></i> Eliminar
+                                    </button>
+                                </div>
+
+                                <!-- Modal de Confirmación de Eliminación Individual -->
+                                <div class="modal fade" id="deleteSingleModal{{ ticket.id }}" tabindex="-1" aria-hidden="true" style="text-align: left;">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content" style="background: #181818; border: 1px solid rgba(220,38,38,0.5); border-radius: 16px; color: #fff;">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2">
+                                                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body py-3">
+                                                <p class="mb-2">¿Estás seguro de que deseas eliminar permanentemente el <strong>Ticket #{{ ticket.id|stringformat:"04d" }}</strong>?</p>
+                                                <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                                                    <div class="fw-bold text-white mb-1">{{ ticket.titulo }}</div>
+                                                    <div class="text-secondary small">{{ ticket.descripcion|truncatewords:14 }}</div>
+                                                </div>
+                                                <p class="text-danger small mb-0 fw-semibold">
+                                                    <i class="bi bi-info-circle me-1"></i> Esta acción eliminará el ticket y todos sus comentarios de forma definitiva.
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer border-0 pt-0">
+                                                <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                                                <form method="post" action="{% url 'tickets:ticket_delete' ticket.pk %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm px-3 fw-bold">
+                                                        <i class="bi bi-trash3-fill me-1"></i> Sí, Eliminar Ticket
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state-box">
+                <i class="bi bi-check2-circle"></i>
+                <h5>No hay tickets en esta sección</h5>
+                <p>La cola seleccionada se encuentra al día sin incidencias pendientes.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- ════════════ FORMULARIO Y MODAL PARA ELIMINACIÓN EN LOTE ════════════ -->
+<form id="bulkDeleteForm" method="post" action="{% url 'tickets:ticket_bulk_delete' %}">
+    {% csrf_token %}
+    <div id="hiddenBulkInputs"></div>
+</form>
+
+<div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #181818; border: 1px solid rgba(220,38,38,0.6); border-radius: 16px; color: #fff;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-octagon-fill"></i> Eliminar Selección de Tickets
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-2">¿Estás seguro de que deseas eliminar permanentemente los tickets seleccionados?</p>
+                <div class="alert alert-danger py-2 small mb-0" style="border-radius: 10px;">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Se borrarán de forma irreversible todos los registros seleccionados y sus historiales de intervención técnica.
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger btn-sm px-4 fw-bold" onclick="submitBulkDelete()">
+                    <i class="bi bi-trash3-fill me-1"></i> Confirmar y Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateSelectedCount() {
+        const checkboxes = document.querySelectorAll('.ticket-row-cb:checked');
+        const count = checkboxes.length;
+        const bulkBar = document.getElementById('bulkActionBar');
+        const countText = document.getElementById('selectedCountText');
+        const selectAll = document.getElementById('selectAllCheckbox');
+        const allCheckboxes = document.querySelectorAll('.ticket-row-cb');
+
+        if (count > 0) {
+            bulkBar.classList.add('show');
+            countText.textContent = `${count} ticket(s) seleccionado(s)`;
+        } else {
+            bulkBar.classList.remove('show');
+        }
+
+        if (allCheckboxes.length > 0) {
+            selectAll.checked = (count === allCheckboxes.length);
+        }
+    }
+
+    function toggleSelectAll(master) {
+        const checkboxes = document.querySelectorAll('.ticket-row-cb');
+        checkboxes.forEach(cb => {
+            cb.checked = master.checked;
+        });
+        updateSelectedCount();
+    }
+
+    function deselectAll() {
+        const checkboxes = document.querySelectorAll('.ticket-row-cb');
+        checkboxes.forEach(cb => cb.checked = false);
+        const selectAll = document.getElementById('selectAllCheckbox');
+        if (selectAll) selectAll.checked = false;
+        updateSelectedCount();
+    }
+
+    function submitBulkDelete() {
+        const checkboxes = document.querySelectorAll('.ticket-row-cb:checked');
+        const hiddenContainer = document.getElementById('hiddenBulkInputs');
+        hiddenContainer.innerHTML = '';
+
+        checkboxes.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ticket_ids';
+            input.value = cb.value;
+            hiddenContainer.appendChild(input);
+        });
+
+        document.getElementById('bulkDeleteForm').submit();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,289 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+/* =====================================================
+   POINTÉCNICO VITE SPA — DARK / RED THEME
+   Paleta: Rojo Scarlet #dc2626 + Negro Obsidiana
+   ===================================================== */
+
+:root {
+  --pt-red:         #dc2626;
+  --pt-red-dark:    #991b1b;
+  --pt-red-glow:    rgba(220, 38, 38, 0.35);
+  --pt-red-subtle:  rgba(220, 38, 38, 0.08);
+  --pt-black:       #080808;
+  --pt-surface:     #111111;
+  --pt-card:        #1a1a1a;
+  --pt-border:      rgba(255,255,255,0.07);
+  --pt-text:        #f0f0f0;
+  --pt-text-muted:  rgba(255,255,255,0.4);
+}
+
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #f0f0f0;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Ticket Card ── */
+.ticket-card-modern {
+  background: var(--pt-card);
+  border: 1px solid var(--pt-border);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.ticket-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(220,38,38,0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ticket-card-modern:hover {
+  transform: translateY(-5px);
+  border-color: rgba(220,38,38,0.2);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 30px rgba(220,38,38,0.06);
+}
+
+.ticket-card-modern:hover::before { opacity: 1; }
+
+/* ── Ticket ID pill ── */
+.ticket-id-pill {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  font-family: 'Poppins', monospace;
+}
+
+/* ── Status Pills ── */
+.pill-status {
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pill-status-abierto   { background: rgba(59,130,246,0.12);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.25); }
+.pill-status-en_proceso{ background: rgba(245,158,11,0.12);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+.pill-status-resuelto  { background: rgba(16,185,129,0.12);  color: #6ee7b7; border: 1px solid rgba(16,185,129,0.25); }
+.pill-status-cerrado   { background: rgba(255,255,255,0.05); color: #6b7280; border: 1px solid rgba(255,255,255,0.08); }
+
+/* ── Priority Pills ── */
+.pill-priority {
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pill-priority-baja    { background: rgba(16,185,129,0.12);  color: #34d399; }
+.pill-priority-media   { background: rgba(59,130,246,0.12);  color: #60a5fa; }
+.pill-priority-alta    { background: rgba(245,158,11,0.12);  color: #fbbf24; }
+.pill-priority-critica { background: rgba(220,38,38,0.15);   color: #f87171; border: 1px solid rgba(220,38,38,0.35); }
+
+/* ── Action buttons ── */
+.btn-action-modern {
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.btn-action-assign {
+  background: rgba(16,185,129,0.1);
+  color: #6ee7b7;
+  border-color: rgba(16,185,129,0.25);
+}
+.btn-action-assign:hover { background: rgba(16,185,129,0.22); color: #fff; }
+
+.btn-action-resolve {
+  background: rgba(220,38,38,0.1);
+  color: #fca5a5;
+  border-color: rgba(220,38,38,0.25);
+}
+.btn-action-resolve:hover { background: var(--pt-red); color: #fff; border-color: var(--pt-red); }
+
+.btn-action-diagnose {
+  background: rgba(245,158,11,0.1);
+  color: #fcd34d;
+  border-color: rgba(245,158,11,0.25);
+}
+.btn-action-diagnose:hover { background: rgba(245,158,11,0.22); color: #fff; }
+
+.btn-action-delete-spa {
+  background: rgba(220,38,38,0.12);
+  color: #fca5a5;
+  border-color: rgba(220,38,38,0.3);
+}
+.btn-action-delete-spa:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(220,38,38,0.4);
+}
+
+/* ── Filter segmented control ── */
+.filter-segmented {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 4px;
+  border-radius: 12px;
+  display: inline-flex;
+  gap: 3px;
+}
+
+.filter-segmented-btn {
+  border: none;
+  background: transparent;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.filter-segmented-btn.active {
+  background: var(--pt-red);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(220,38,38,0.35);
+}
+
+.filter-segmented-btn:hover:not(.active) {
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+}
+
+/* ── Meta row ── */
+.card-meta-row {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ── Banner stat box ── */
+.banner-stat-box {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 16px 20px;
+  backdrop-filter: blur(10px);
+}
+
+/* ── Modal dark ── */
+.modal-dark .modal-content {
+  background: #1a1a1a !important;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  border-radius: 20px;
+  overflow: hidden;
+  color: #f0f0f0;
+}
+
+.modal-dark .modal-header {
+  background: rgba(220,38,38,0.08) !important;
+  border-bottom: 1px solid rgba(220,38,38,0.15) !important;
+  padding: 20px 24px;
+}
+
+.modal-dark .modal-footer {
+  background: rgba(255,255,255,0.02) !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+  padding: 16px 24px;
+}
+
+.modal-dark .form-control,
+.modal-dark .form-select {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+}
+
+.modal-dark .form-control:focus,
+.modal-dark .form-select:focus {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: var(--pt-red) !important;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.2) !important;
+}
+
+.modal-dark .form-control::placeholder { color: rgba(255,255,255,0.25) !important; }
+.modal-dark .form-label { color: rgba(255,255,255,0.6) !important; font-size: 0.82rem !important; font-weight: 700 !important; }
+
+/* ── SPA Navbar ── */
+.spa-navbar {
+  background: rgba(8,8,8,0.9);
+  border-bottom: 1px solid rgba(220,38,38,0.25);
+  backdrop-filter: blur(20px);
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* ── SPA banner ── */
+.spa-banner {
+  background: linear-gradient(135deg, rgba(220,38,38,0.1) 0%, rgba(255,255,255,0.01) 100%);
+  border: 1px solid rgba(220,38,38,0.12);
+  border-radius: 22px;
+  padding: 36px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.spa-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--pt-red), transparent);
+}
+
+/* ── Footer ── */
+.spa-footer {
+  background: #080808;
+  border-top: 1px solid rgba(220,38,38,0.1);
+  padding: 20px 0;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.8rem;
+  text-align: center;
+}
+

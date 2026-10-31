@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PoinTécnico | Plataforma de Soporte Técnico Especializado{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* ── HERO ── */
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        min-height: 88vh;
+        display: flex;
+        align-items: center;
+        background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(220,38,38,0.18) 0%, transparent 70%), #0a0a0a;
+    }
+
+    /* Animated scanline grid */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(220,38,38,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(220,38,38,0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent);
+    }
+
+    /* Red accent line top */
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, rgba(220,38,38,0.5) 50%, transparent 100%);
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(220,38,38,0.1);
+        border: 1px solid rgba(220,38,38,0.3);
+        color: #fca5a5;
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+    }
+
+    .hero-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: clamp(2.4rem, 5vw, 3.8rem);
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.04em;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+
+    .hero-title .accent { color: var(--pt-red); }
+
+    .hero-desc {
+        font-size: 1.1rem;
+        color: rgba(255,255,255,0.55);
+        line-height: 1.75;
+        max-width: 540px;
+        margin-bottom: 36px;
+    }
+
+    .hero-cta-group { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    .btn-hero-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--pt-red) 0%, #991b1b 100%);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 28px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(220,38,38,0.4);
+        transition: all 0.25s ease;
+    }
+
+    .btn-hero-primary:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(220,38,38,0.55);
+    }
+
+    .btn-hero-outline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: transparent;
+        color: rgba(255,255,255,0.8);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 14px;
+        padding: 13px 26px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-hero-outline:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.07);
+        border-color: rgba(255,255,255,0.4);
+    }
+
+    .btn-hero-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: transparent;
+        color: rgba(255,255,255,0.45);
+        border: none;
+        padding: 13px 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .btn-hero-ghost:hover { color: #fff; }
+
+    /* Hero stat counters */
+    .hero-stats {
+        display: flex;
+        gap: 32px;
+        margin-top: 44px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .hero-stat-num {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .hero-stat-num span { color: var(--pt-red); }
+    .hero-stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.35); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Hero right — logo card */
+    .hero-logo-card {
+        position: relative;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 28px;
+        padding: 40px;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(220,38,38,0.08);
+        overflow: hidden;
+    }
+
+    .hero-logo-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(220,38,38,0.6), transparent);
+    }
+
+    .hero-logo-card img {
+        width: 180px;
+        height: 180px;
+        object-fit: contain;
+        border-radius: 24px;
+        border: 2px solid rgba(220,38,38,0.4);
+        background: #fff;
+        padding: 8px;
+        box-shadow: 0 0 40px rgba(220,38,38,0.25);
+        margin-bottom: 20px;
+        animation: float 5s ease-in-out infinite;
+    }
+
+    .hero-logo-card .logo-card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #fff;
+        margin-bottom: 6px;
+    }
+
+    .hero-logo-card .logo-card-sub {
+        font-size: 0.8rem;
+        color: rgba(255,255,255,0.35);
+    }
+
+    /* Status pills on card */
+    .hero-status-pills {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .status-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 10px 14px;
+    }
+
+    .status-pill-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .dot-green  { background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+    .dot-yellow { background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+    .dot-red    { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+
+    .status-pill span { font-size: 0.8rem; color: rgba(255,255,255,0.6); font-weight: 600; }
+    .status-pill .pill-count { font-weight: 800; color: #fff; font-size: 0.9rem; }
+
+    /* ── FEATURES SECTION ── */
+    .features-section {
+        padding: 100px 0;
+        background: #0d0d0d;
+        position: relative;
+    }
+
+    .section-label-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(220,38,38,0.08);
+        border: 1px solid rgba(220,38,38,0.2);
+        color: #f87171;
+        padding: 5px 16px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.03em;
+        margin-bottom: 14px;
+    }
+
+    .section-desc {
+        font-size: 0.95rem;
+        color: rgba(255,255,255,0.4);
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.7;
+    }
+
+    /* Feature cards */
+    .feature-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 20px;
+        padding: 32px 28px;
+        height: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--pt-red), transparent);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+        background: rgba(220,38,38,0.05);
+        border-color: rgba(220,38,38,0.2);
+        transform: translateY(-6px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3), 0 0 30px rgba(220,38,38,0.08);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon-wrap {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(220,38,38,0.1);
+        border: 1px solid rgba(220,38,38,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #f87171;
+        margin-bottom: 20px;
+    }
+
+    .feature-card h5 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 800;
+        font-size: 1.05rem;
+        color: #fff;
+        margin-bottom: 10px;
+    }
+
+    .feature-card p {
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.45);
+        line-height: 1.65;
+        margin-bottom: 16px;
+    }
+
+    .feature-tip {
+        background: rgba(220,38,38,0.06);
+        border-left: 3px solid rgba(220,38,38,0.4);
+        border-radius: 0 8px 8px 0;
+        padding: 10px 14px;
+        font-size: 0.78rem;
+        color: rgba(255,255,255,0.5);
+        line-height: 1.5;
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+        padding: 100px 0;
+        background: linear-gradient(135deg, #0a0a0a 0%, #130303 50%, #0a0a0a 100%);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(220,38,38,0.12) 0%, transparent 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+
+    .cta-section h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.03em;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-section p {
+        color: rgba(255,255,255,0.45);
+        font-size: 1rem;
+        margin-bottom: 36px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-section .btn-hero-primary { position: relative; z-index: 1; margin: 0 auto; font-size: 1.05rem; padding: 16px 36px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════ HERO ════════════ -->
+<section class="hero-section">
+    <div class="container position-relative" style="z-index: 1; padding-top: 60px; padding-bottom: 60px;">
+        <div class="row align-items-center g-5">
+
+            <!-- LEFT: Copy -->
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="bi bi-geo-alt-fill"></i> Soporte Ágil en Punto Clave
+                </div>
+
+                <h1 class="hero-title">
+                    Gestión y asignación<br>de soporte para <span class="accent">técnicos</span>
+                </h1>
+
+                <p class="hero-desc">
+                    Optimiza la resolución de incidencias en tu organización. Asigna técnicos en tiempo
+                    real, monitorea diagnósticos y mantén comunicación transparente con tus usuarios.
+                </p>
+
+                <div class="hero-cta-group">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'tickets:dashboard_dispatcher' %}" class="btn-hero-primary">
+                            <i class="bi bi-speedometer2"></i> Ir a mi Panel
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn-hero-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Acceder al Sistema
+                        </a>
+                        <a href="{% url 'accounts:register' %}" class="btn-hero-outline">
+                            <i class="bi bi-person-plus"></i> Crear Cuenta
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'tickets:faq' %}" class="btn-hero-ghost">
+                        <i class="bi bi-info-circle"></i> Preguntas Frecuentes
+                    </a>
+                </div>
+
+                <!-- Mini stats -->
+                <div class="hero-stats">
+                    <div>
+                        <div class="hero-stat-num">4<span>+</span></div>
+                        <div class="hero-stat-label">Roles de acceso</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">100<span>%</span></div>
+                        <div class="hero-stat-label">Trazabilidad</div>
+                    </div>
+                    <div>
+                        <div class="hero-stat-num">RT</div>
+                        <div class="hero-stat-label">Tiempo real</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Animated card -->
+            <div class="col-lg-5">
+                <div class="hero-logo-card">
+                    <img src="{% static 'img/logo.jpg' %}" alt="PoinTécnico Logo">
+                    <div class="logo-card-title">Sistema Integral PoinTécnico</div>
+                    <div class="logo-card-sub">Gestión y asignación de soporte técnico</div>
+
+                    <div class="hero-status-pills">
+                        <div class="status-pill">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="status-pill-dot dot-green"></div>
+                                <span>Tickets Resueltos</span>
+                            </div>
+                            <span class="pill-count">24</span>
+                        </div>
+                        <div class="status-pill">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="status-pill-dot dot-yellow"></div>
+                                <span>En Diagnóstico</span>
+                            </div>
+                            <span class="pill-count">7</span>
+                        </div>
+                        <div class="status-pill">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="status-pill-dot dot-red"></div>
+                                <span>Cola Crítica</span>
+                            </div>
+                            <span class="pill-count">2</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ FEATURES / BUENAS PRÁCTICAS ════════════ -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label-tag">
+                <i class="bi bi-lightbulb-fill"></i> Guía de Buenas Prácticas
+            </div>
+            <h2 class="section-title">Consejos para una Gestión Eficaz</h2>
+            <p class="section-desc">
+                Sigue estas pautas clave para agilizar la resolución de incidencias, optimizar los tiempos
+                de respuesta y garantizar un soporte técnico de excelencia.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Consejo 1 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap"><i class="bi bi-pencil-square"></i></div>
+                    <h5>1. Reporte Detallado</h5>
+                    <p>Describe claramente los síntomas del problema, mensajes de error textuales y el equipo o software afectado.</p>
+                    <div class="feature-tip">
+                        💡 Un reporte preciso reduce el tiempo de diagnóstico inicial en más de un 50%.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejo 2 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap"><i class="bi bi-exclamation-diamond"></i></div>
+                    <h5>2. Priorización Realista</h5>
+                    <p>Clasifica con objetividad la urgencia. Reserva el nivel <strong style="color: #f87171;">Crítica</strong> para fallas que paralicen completamente la operación.</p>
+                    <div class="feature-tip">
+                        💡 Una correcta escala de prioridades asegura que las emergencias críticas se atiendan al instante.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejo 3 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap"><i class="bi bi-chat-left-dots"></i></div>
+                    <h5>3. Canal Centralizado</h5>
+                    <p>Evita solicitudes verbales o mensajes informales. Todo seguimiento técnico debe documentarse en el hilo oficial del ticket.</p>
+                    <div class="feature-tip">
+                        💡 Mantener el historial centralizado permite que cualquier técnico continúe el caso sin retrasos.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consejo 4 -->
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap"><i class="bi bi-journal-check"></i></div>
+                    <h5>4. Cierre y Validación</h5>
+                    <p>Al resolver la incidencia, registra la solución aplicada y confirma con el usuario solicitante antes del cierre definitivo.</p>
+                    <div class="feature-tip">
+                        💡 Documentar las soluciones alimenta la base de conocimiento para resolver problemas futuros en minutos.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════ CTA ════════════ -->
+<section class="cta-section">
+    <div class="container">
+        <h2>¿Listo para empezar?</h2>
+        <p>Ingresa con tu cuenta de PoinTécnico para acceder a tu panel de trabajo.</p>
+        <a href="{% url 'accounts:login' %}" class="btn-hero-primary">
+            <i class="bi bi-box-arrow-in-right"></i> Acceder al Sistema
+        </a>
+    </div>
+</section>
+
+{% endblock %}
+

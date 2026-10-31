@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Reportar Incidencia | PoinTécnico{% endblock %}
+
+{% block extra_head %}
+<style>
+    .create-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 22px;
+        overflow: hidden;
+        position: relative;
+    }
+    .create-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--pt-red), transparent);
+    }
+    .create-card-body { padding: 36px 40px; }
+    .form-section-title {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: rgba(255,255,255,0.25);
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .form-label { color: rgba(255,255,255,0.75) !important; font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; }
+    .form-text  { color: rgba(255,255,255,0.3) !important; font-size: 0.77rem; margin-top: 6px; }
+    .btn-cancel {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+        color: rgba(255,255,255,0.5); padding: 10px 22px; border-radius: 12px;
+        font-weight: 700; font-size: 0.9rem; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.09); color: rgba(255,255,255,0.8); }
+    .pt-divider { border-color: rgba(255,255,255,0.06) !important; }
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.5); padding: 7px 14px; border-radius: 10px;
+        font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
+    }
+    .back-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Page header -->
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #fff; font-family: 'Poppins', sans-serif;">
+                        Reportar Nueva Incidencia
+                    </h2>
+                    <p style="color: rgba(255,255,255,0.4); margin: 0; font-size: 0.9rem;">
+                        Describe el inconveniente para que un técnico del equipo pueda atenderlo.
+                    </p>
+                </div>
+                <a href="{% url 'tickets:user_dashboard' %}" class="back-link">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <div class="create-card">
+                <div class="create-card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger mb-4" style="border-radius: 12px;">
+                                {% for error in form.non_field_errors %}
+                                    <div><i class="bi bi-exclamation-circle me-1"></i> {{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Sección: Descripción -->
+                        <div class="form-section-title"><i class="bi bi-file-text me-1"></i> Información de la Incidencia</div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                                Título Resumido de la Incidencia *
+                            </label>
+                            {{ form.titulo }}
+                            <div class="form-text">Indica brevemente el problema (ej: "No puedo acceder a la VPN corporativa").</div>
+                            {% if form.titulo.errors %}
+                                <div style="color: #f87171; font-size: 0.8rem; margin-top: 6px;">{{ form.titulo.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Sección: Clasificación -->
+                        <div class="form-section-title"><i class="bi bi-tag me-1"></i> Clasificación</div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría del Servicio *</label>
+                                {{ form.categoria }}
+                                {% if form.categoria.errors %}
+                                    <div style="color: #f87171; font-size: 0.8rem; margin-top: 6px;">{{ form.categoria.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.prioridad.id_for_label }}" class="form-label">Nivel de Prioridad Estimado *</label>
+                                {{ form.prioridad }}
+                                <div class="form-text">El técnico revisará y confirmará la prioridad asignada.</div>
+                                {% if form.prioridad.errors %}
+                                    <div style="color: #f87171; font-size: 0.8rem; margin-top: 6px;">{{ form.prioridad.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Sección: Detalle -->
+                        <div class="form-section-title"><i class="bi bi-chat-square-text me-1"></i> Descripción Detallada</div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción Detallada *</label>
+                            {{ form.descripcion }}
+                            <div class="form-text">
+                                Por favor incluya: equipo afectado, ubicación física, mensajes de error textuales y pasos que realizaba.
+                            </div>
+                            {% if form.descripcion.errors %}
+                                <div style="color: #f87171; font-size: 0.8rem; margin-top: 6px;">{{ form.descripcion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top pt-divider">
+                            <a href="{% url 'tickets:user_dashboard' %}" class="btn-cancel">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-pt-primary px-4 fw-bold" style="border-radius: 12px; height: 46px;">
+                                <i class="bi bi-send-fill me-1"></i> Enviar Incidencia a Soporte
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

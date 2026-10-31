@@ -1,0 +1,373 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket #{{ ticket.id|stringformat:"04d" }} | PoinTécnico{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Dark detail card */
+    .detail-card {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .detail-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.9);
+        background: rgba(255,255,255,0.02);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .detail-card-body { padding: 24px 22px; }
+    .desc-text {
+        color: rgba(255,255,255,0.65);
+        white-space: pre-line;
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    /* Meta row */
+    .meta-label {
+        font-size: 0.68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: rgba(255,255,255,0.25);
+        display: block;
+        margin-bottom: 6px;
+    }
+    .meta-value { color: rgba(255,255,255,0.75); font-size: 0.875rem; }
+    .meta-divider { border-color: rgba(255,255,255,0.05) !important; margin: 16px 0; }
+    /* Gestor action panel */
+    .gestor-panel {
+        background: rgba(220,38,38,0.04);
+        border: 1px solid rgba(220,38,38,0.15);
+        border-radius: 18px;
+        overflow: hidden;
+    }
+    .gestor-panel-header {
+        background: linear-gradient(135deg, rgba(220,38,38,0.2), rgba(220,38,38,0.08));
+        padding: 14px 20px;
+        border-bottom: 1px solid rgba(220,38,38,0.12);
+        font-weight: 800;
+        font-size: 0.875rem;
+        color: #fca5a5;
+    }
+    .gestor-panel-body { padding: 20px; }
+    /* Technician assigned box */
+    .tech-box {
+        background: rgba(59,130,246,0.06);
+        border: 1px solid rgba(59,130,246,0.15);
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+    .tech-box .tech-name { font-weight: 700; color: #93c5fd; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+    .tech-box .tech-email { color: rgba(255,255,255,0.3); font-size: 0.78rem; margin-top: 3px; }
+    /* Comment items */
+    .comment-author { color: rgba(255,255,255,0.85); font-weight: 700; font-size: 0.875rem; }
+    .comment-time   { color: rgba(255,255,255,0.25); font-size: 0.78rem; }
+    .comment-text   { color: rgba(255,255,255,0.6); white-space: pre-line; font-size: 0.875rem; line-height: 1.6; margin-top: 8px; }
+    /* Back link */
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.5); padding: 7px 14px; border-radius: 10px;
+        font-size: 0.82rem; font-weight: 700; text-decoration: none; transition: all 0.2s;
+    }
+    .back-link:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    /* Assign btn */
+    .btn-self-assign {
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
+        background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+        color: #93c5fd; padding: 10px; border-radius: 10px;
+        font-size: 0.875rem; font-weight: 800; cursor: pointer; transition: all 0.2s;
+        margin-bottom: 16px;
+    }
+    .btn-self-assign:hover { background: rgba(59,130,246,0.2); color: #fff; }
+    .sub-title { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.25); margin-bottom: 10px; }
+    .save-state-btn {
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
+        background: linear-gradient(135deg, var(--pt-red), #991b1b);
+        color: #fff; border: none; padding: 11px; border-radius: 10px;
+        font-size: 0.875rem; font-weight: 800; cursor: pointer; transition: all 0.25s;
+        box-shadow: 0 4px 14px rgba(220,38,38,0.35);
+    }
+    .save-state-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(220,38,38,0.5); }
+    .form-check-input { border-color: rgba(255,255,255,0.15) !important; }
+    .form-check-label { color: rgba(255,255,255,0.5) !important; font-size: 0.82rem !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- ENCABEZADO SUPERIOR -->
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-1">
+                <span style="font-size: 1.1rem; font-weight: 900; color: rgba(255,255,255,0.2); font-family: 'Poppins', sans-serif;">
+                    #{{ ticket.id|stringformat:"04d" }}
+                </span>
+                <h2 class="fw-bold mb-0" style="color: #fff; font-family: 'Poppins', sans-serif;">
+                    {{ ticket.titulo }}
+                </h2>
+            </div>
+            <p style="color: rgba(255,255,255,0.35); font-size: 0.85rem; margin: 0;">
+                Creado por <strong style="color: rgba(255,255,255,0.55);">{{ ticket.usuario_creador.get_full_name|default:ticket.usuario_creador.username }}</strong>
+                ({{ ticket.usuario_creador.email }}) el {{ ticket.fecha_creacion|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+        {% if es_gestor_o_admin %}
+            <a href="{% url 'tickets:gestor_dashboard' %}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Panel Gestor
+            </a>
+        {% else %}
+            <a href="{% url 'tickets:user_dashboard' %}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Mis Solicitudes
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+
+        <!-- ════ COLUMNA PRINCIPAL ════ -->
+        <div class="col-lg-8">
+
+            <!-- Descripción -->
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <span><i class="bi bi-file-text me-2" style="color: var(--pt-red);"></i>Descripción de la Falla</span>
+                    <span style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); padding: 3px 10px; border-radius: 6px; font-size: 0.78rem;">
+                        {{ ticket.categoria.nombre }}
+                    </span>
+                </div>
+                <div class="detail-card-body">
+                    <p class="desc-text">{{ ticket.descripcion }}</p>
+                </div>
+            </div>
+
+            <!-- Historial de comentarios -->
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <span><i class="bi bi-chat-left-text me-2" style="color: var(--pt-red);"></i>Historial y Seguimiento Técnico</span>
+                </div>
+                <div class="detail-card-body">
+                    {% if comentarios %}
+                        {% for comentario in comentarios %}
+                            <div class="comment-item {% if comentario.es_interno %}internal{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="comment-author">{{ comentario.autor.get_full_name|default:comentario.autor.username }}</span>
+                                        {% if comentario.autor.is_admin_rol %}
+                                            <span class="badge-rol badge-rol-admin">Admin</span>
+                                        {% elif comentario.autor.is_gestor %}
+                                            <span class="badge-rol badge-rol-gestor">Técnico</span>
+                                        {% else %}
+                                            <span class="badge-rol badge-rol-usuario">Usuario</span>
+                                        {% endif %}
+                                        {% if comentario.es_interno %}
+                                            <span style="background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); padding: 2px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;">
+                                                <i class="bi bi-lock-fill me-1"></i>Nota Interna
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <span class="comment-time">{{ comentario.timestamp|date:"d/m/Y H:i" }}</span>
+                                </div>
+                                <p class="comment-text">{{ comentario.mensaje }}</p>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 30px 0; color: rgba(255,255,255,0.2);">
+                            <i class="bi bi-chat-dots" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            <p style="font-size: 0.875rem; margin: 0;">No hay intervenciones registradas todavía.</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Formulario de nuevo comentario -->
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <h6 style="color: rgba(255,255,255,0.6); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;">
+                            <i class="bi bi-reply-fill me-1" style="color: var(--pt-red);"></i> Agregar Comentario / Respuesta
+                        </h6>
+                        <form method="post" action="{% url 'tickets:comentario_create' ticket.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea name="mensaje" rows="3" class="form-control"
+                                    placeholder="Escribe un mensaje o actualización..." required></textarea>
+                            </div>
+
+                            {% if es_gestor_o_admin %}
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="es_interno" id="id_es_interno">
+                                    <label class="form-check-label" for="id_es_interno">
+                                        <i class="bi bi-shield-lock-fill me-1" style="color: #fbbf24;"></i>
+                                        Marcar como Nota Interna Confidencial (No visible para el usuario solicitante)
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <button type="submit" class="btn btn-pt-primary btn-sm px-4 fw-bold">
+                                <i class="bi bi-send me-1"></i> Publicar Mensaje
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════ COLUMNA LATERAL ════ -->
+        <div class="col-lg-4">
+
+            <!-- Metadatos del Ticket -->
+            <div class="detail-card">
+                <div class="detail-card-header">
+                    <span><i class="bi bi-info-circle me-2" style="color: var(--pt-red);"></i>Información del Ticket</span>
+                </div>
+                <div class="detail-card-body">
+
+                    <!-- Estado -->
+                    <span class="meta-label">Estado Actual</span>
+                    {% if ticket.estado == 'ABIERTO' %}
+                        <span class="badge-status badge-status-abierto"><i class="bi bi-clock me-1"></i>Abierto</span>
+                    {% elif ticket.estado == 'EN_PROCESO' %}
+                        <span class="badge-status badge-status-en_proceso"><i class="bi bi-gear-fill me-1"></i>En Diagnóstico</span>
+                    {% elif ticket.estado == 'RESUELTO' %}
+                        <span class="badge-status badge-status-resuelto"><i class="bi bi-check-circle-fill me-1"></i>Resuelto</span>
+                    {% else %}
+                        <span class="badge-status badge-status-cerrado"><i class="bi bi-archive-fill me-1"></i>Cerrado</span>
+                    {% endif %}
+
+                    <hr class="meta-divider">
+
+                    <!-- Prioridad -->
+                    <span class="meta-label">Nivel de Prioridad</span>
+                    {% if ticket.prioridad == 'BAJA' %}
+                        <span class="badge badge-priority badge-priority-baja">Baja</span>
+                    {% elif ticket.prioridad == 'MEDIA' %}
+                        <span class="badge badge-priority badge-priority-media">Media</span>
+                    {% elif ticket.prioridad == 'ALTA' %}
+                        <span class="badge badge-priority badge-priority-alta">Alta</span>
+                    {% else %}
+                        <span class="badge badge-priority badge-priority-critica">Crítica</span>
+                    {% endif %}
+
+                    <hr class="meta-divider">
+
+                    <!-- Técnico Asignado -->
+                    <span class="meta-label">Técnico Asignado</span>
+                    {% if ticket.tecnico_asignado %}
+                        <div class="tech-box">
+                            <div class="tech-name"><i class="bi bi-person-fill"></i> {{ ticket.tecnico_asignado.get_full_name|default:ticket.tecnico_asignado.username }}</div>
+                            <div class="tech-email">{{ ticket.tecnico_asignado.email }}</div>
+                            {% if ticket.tecnico_asignado.especialidad %}
+                                <span class="badge-rol badge-rol-gestor mt-2 d-inline-block">{{ ticket.tecnico_asignado.especialidad }}</span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning py-2 small mb-0" style="border-radius: 10px;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Pendiente por Asignar
+                        </div>
+                    {% endif %}
+
+                    <hr class="meta-divider">
+
+                    <!-- Última actualización -->
+                    <span class="meta-label">Última Actualización</span>
+                    <span class="meta-value">{{ ticket.fecha_actualizacion|date:"d/m/Y H:i:s" }}</span>
+                </div>
+            </div>
+
+            <!-- Panel de Acciones para Gestores -->
+            {% if es_gestor_o_admin %}
+                <div class="gestor-panel">
+                    <div class="gestor-panel-header">
+                        <i class="bi bi-tools me-2"></i> Operaciones de Soporte
+                    </div>
+                    <div class="gestor-panel-body">
+
+                        <!-- Autoasignar -->
+                        {% if not ticket.tecnico_asignado or ticket.tecnico_asignado != user %}
+                            <form method="post" action="{% url 'tickets:gestor_asignar' ticket.pk %}" class="mb-4">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-self-assign">
+                                    <i class="bi bi-person-check-fill"></i> Autoasignarme este Ticket
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <!-- Cambiar estado -->
+                        <div class="sub-title"><i class="bi bi-arrow-repeat me-1"></i> Actualizar Estado y Diagnóstico</div>
+                        <form method="post" action="{% url 'tickets:gestor_cambiar_estado' ticket.pk %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <select name="estado" class="form-select">
+                                    <option value="ABIERTO" {% if ticket.estado == 'ABIERTO' %}selected{% endif %}>Abierto</option>
+                                    <option value="EN_PROCESO" {% if ticket.estado == 'EN_PROCESO' %}selected{% endif %}>En Diagnóstico / Proceso</option>
+                                    <option value="RESUELTO" {% if ticket.estado == 'RESUELTO' %}selected{% endif %}>Resuelto</option>
+                                    <option value="CERRADO" {% if ticket.estado == 'CERRADO' %}selected{% endif %}>Cerrado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <textarea name="nota_tecnica" class="form-control" rows="2"
+                                    placeholder="Nota técnica del cambio (opcional)..."></textarea>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="es_interno" id="chk_estado_interno" checked>
+                                <label class="form-check-label" for="chk_estado_interno">Nota técnica confidencial</label>
+                            </div>
+                            <button type="submit" class="save-state-btn">
+                                <i class="bi bi-arrow-repeat"></i> Guardar Nuevo Estado
+                            </button>
+                        </form>
+
+                        <!-- Zona de eliminación exclusiva para Gestor / Admin -->
+                        <div class="mt-4 pt-3 border-top" style="border-color: rgba(220,38,38,0.2) !important;">
+                            <button type="button" class="btn btn-outline-danger w-100 fw-bold btn-sm py-2" data-bs-toggle="modal" data-bs-target="#deleteDetailModal">
+                                <i class="bi bi-trash3-fill me-1"></i> Eliminar este Ticket
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% if es_gestor_o_admin %}
+<!-- Modal Confirmación Eliminación en Detalle -->
+<div class="modal fade" id="deleteDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #181818; border: 1px solid rgba(220,38,38,0.5); border-radius: 16px; color: #fff;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-danger d-flex align-items-center gap-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-2">¿Estás seguro de que deseas eliminar permanentemente el <strong>Ticket #{{ ticket.id|stringformat:"04d" }}</strong>?</p>
+                <div class="p-3 rounded-3 mb-2" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="fw-bold text-white mb-1">{{ ticket.titulo }}</div>
+                    <small class="text-secondary">{{ ticket.descripcion|truncatewords:15 }}</small>
+                </div>
+                <p class="text-danger small mb-0"><i class="bi bi-info-circle me-1"></i> Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-light btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                <form method="post" action="{% url 'tickets:ticket_delete' ticket.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm px-4 fw-bold">
+                        <i class="bi bi-trash3-fill me-1"></i> Sí, Eliminar Ticket
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+

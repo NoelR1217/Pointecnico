@@ -1,0 +1,39 @@
+services:
+  # =========================================================================
+  # BACKEND SERVICE (Python 3.11 + Django Framework + DRF + SQLite)
+  # =========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pointecnico_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - DJANGO_DEBUG=True
+      - DJANGO_SECRET_KEY=django-insecure-pointecnico-docker-dev-key-2026
+      - PYTHONUNBUFFERED=1
+    command: /app/entrypoint.sh
+
+  # =========================================================================
+  # FRONTEND SERVICE (Vite.js + React SPA)
+  # =========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pointecnico_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    command: npm run dev -- --host 0.0.0.0

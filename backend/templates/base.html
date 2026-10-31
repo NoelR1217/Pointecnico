@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PoinTécnico | Gestión y Asignación de Soporte Técnico{% endblock %}</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'img/logo.jpg' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════════════════════════ NAVBAR ═══════════════════════════════ -->
+<nav class="navbar-pt">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a class="navbar-brand-pt" href="{% url 'tickets:landing' %}">
+            <img src="{% static 'img/logo.jpg' %}" alt="Logo">
+            <span class="brand-name">Poin<span class="red-part">técnico</span></span>
+        </a>
+
+        <!-- NAV LINKS -->
+        <ul class="navbar-nav flex-row gap-1 d-none d-lg-flex align-items-center me-auto ms-4">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tickets:landing' %}">
+                    <i class="bi bi-house-door me-1"></i> Inicio
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'tickets:faq' %}">
+                    <i class="bi bi-question-circle me-1"></i> FAQ
+                </a>
+            </li>
+            {% if user.is_authenticated %}
+                {% if user.is_gestor or user.is_admin_rol %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tickets:gestor_dashboard' %}">
+                            <i class="bi bi-tools me-1"></i> Panel Gestor
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.is_usuario or user.is_admin_rol %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tickets:user_dashboard' %}">
+                            <i class="bi bi-ticket-detailed me-1"></i> Mis Tickets
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tickets:ticket_create' %}">
+                            <i class="bi bi-plus-circle me-1"></i> Reportar
+                        </a>
+                    </li>
+                {% endif %}
+                {% if user.is_admin_rol %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/" target="_blank">
+                            <i class="bi bi-shield-lock me-1"></i> Admin
+                        </a>
+                    </li>
+                {% endif %}
+            {% endif %}
+        </ul>
+
+        <!-- USER MENU -->
+        <div class="d-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="btn btn-pt-outline btn-sm d-flex align-items-center gap-2 dropdown-toggle"
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="border-radius: 10px; padding: 7px 14px;">
+                        <i class="bi bi-person-circle"></i>
+                        <span style="font-size: 0.875rem; font-weight: 600;">{{ user.first_name|default:user.username }}</span>
+                        {% if user.is_admin_rol %}
+                            <span class="badge-rol badge-rol-admin">Admin</span>
+                        {% elif user.is_gestor %}
+                            <span class="badge-rol badge-rol-gestor">Gestor</span>
+                        {% elif user.is_usuario %}
+                            <span class="badge-rol badge-rol-usuario">Usuario</span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li class="dropdown-header">
+                            <div class="fw-bold text-white">{{ user.username }}</div>
+                            <div class="mt-1" style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">{{ user.email }}</div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'tickets:dashboard_dispatcher' %}">
+                                <i class="bi bi-speedometer2 me-2"></i> Mi Panel
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'accounts:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            {% else %}
+                <a class="btn btn-pt-outline btn-sm" href="{% url 'accounts:login' %}" style="border-radius: 10px; padding: 7px 16px;">
+                    Iniciar Sesión
+                </a>
+                <a class="btn btn-pt-primary btn-sm" href="{% url 'accounts:register' %}" style="border-radius: 10px; padding: 7px 16px;">
+                    Registrarse
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- MENSAJES DEL SISTEMA -->
+<div class="container mt-3">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>{% endif %}
+                {% if message.tags == 'error' or message.tags == 'danger' %}<i class="bi bi-exclamation-triangle-fill me-2"></i>{% endif %}
+                {% if message.tags == 'warning' %}<i class="bi bi-exclamation-circle-fill me-2"></i>{% endif %}
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<main>{% block content %}{% endblock %}</main>
+
+<!-- FOOTER -->
+<footer class="mt-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <img src="{% static 'img/logo.jpg' %}" alt="Logo" style="height: 26px; border-radius: 6px; background: white; padding: 1px; border: 1px solid rgba(220,38,38,0.4);">
+                <span style="font-family: 'Poppins', sans-serif; font-weight: 700; color: rgba(255,255,255,0.8);">
+                    Poin<span style="color: var(--pt-red);">técnico</span>
+                </span>
+            </div>
+            <p style="margin: 0; font-size: 0.8rem;">Gestión y asignación de soporte para técnicos &bull; &copy; 2026</p>
+            <div style="font-size: 0.78rem;">
+                <span style="color: rgba(255,255,255,0.2);">Django 5 &bull; DRF &bull; Vite.js &bull; Docker</span>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Panel de Solicitante | PoinTécnico{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dash-header-wrap {
+        background: linear-gradient(135deg, rgba(220,38,38,0.12) 0%, rgba(20,20,20,0.85) 100%);
+        border: 1px solid rgba(220,38,38,0.25);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .dash-header-wrap::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #dc2626, #f59e0b, transparent);
+    }
+
+    .stat-card-dark {
+        background: #141414 !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .stat-card-dark:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+    }
+
+    .filter-btn-group a {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 16px;
+        border-radius: 9px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #cbd5e1;
+        background: rgba(255,255,255,0.04);
+        transition: all 0.2s;
+    }
+    .filter-btn-group a:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.25);
+    }
+    .filter-btn-group a.active-filter {
+        background: linear-gradient(135deg, #dc2626, #991b1b) !important;
+        color: #fff !important;
+        border-color: #ef4444 !important;
+        box-shadow: 0 3px 12px rgba(220,38,38,0.45);
+    }
+
+    .cat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 0.78rem;
+        color: #f1f5f9;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .ticket-id-tag {
+        display: inline-block;
+        background: rgba(220,38,38,0.15);
+        border: 1px solid rgba(220,38,38,0.4);
+        color: #fca5a5;
+        font-weight: 800;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-family: monospace;
+    }
+
+    .ticket-link {
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: color 0.15s;
+    }
+    .ticket-link:hover {
+        color: #f87171 !important;
+        text-decoration: underline;
+    }
+
+    .ticket-date-text {
+        color: #cbd5e1 !important;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .btn-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, #dc2626, #991b1b);
+        border: 1px solid #ef4444;
+        color: #ffffff !important;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s;
+        box-shadow: 0 3px 10px rgba(220,38,38,0.35);
+    }
+    .btn-detail:hover {
+        background: #ef4444;
+        color: #fff !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(220,38,38,0.55);
+    }
+
+    .table-dark-custom {
+        width: 100%;
+        margin-bottom: 0;
+        color: #f1f5f9;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .table-dark-custom thead th {
+        background: #1a1a1a !important;
+        color: #94a3b8 !important;
+        font-size: 0.74rem !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.7px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+        padding: 14px 18px !important;
+    }
+    .table-dark-custom tbody tr {
+        background: #141414;
+        transition: background-color 0.15s ease;
+    }
+    .table-dark-custom tbody tr:nth-child(even) {
+        background: #181818;
+    }
+    .table-dark-custom tbody tr:hover {
+        background: rgba(220,38,38,0.1) !important;
+    }
+    .table-dark-custom tbody td {
+        padding: 16px 18px !important;
+        vertical-align: middle !important;
+        border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        color: #f1f5f9 !important;
+    }
+
+    .empty-state { padding: 60px 20px; text-align: center; }
+    .empty-state i { font-size: 3rem; color: #4ade80; display: block; margin-bottom: 16px; }
+    .empty-state h5 { color: #ffffff; font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; }
+    .empty-state p  { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- ENCABEZADO -->
+    <div class="dash-header-wrap d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="fw-bold mb-0 text-white" style="font-family: 'Poppins', sans-serif;">
+                    Mis Solicitudes de Soporte
+                </h2>
+                <span class="badge-rol badge-rol-usuario">Rol: Usuario</span>
+            </div>
+            <p style="color: #cbd5e1; margin: 0; font-size: 0.92rem;">
+                Consulta el estado, notas de diagnóstico y respuestas del equipo técnico en tiempo real.
+            </p>
+        </div>
+        <a href="{% url 'tickets:ticket_create' %}" class="btn btn-pt-primary" style="border-radius: 12px; padding: 12px 24px; font-weight: 800; font-size: 0.95rem;">
+            <i class="bi bi-plus-lg me-1"></i> Reportar Nueva Incidencia
+        </a>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center">
+                <span style="color: #94a3b8; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;">Total Reportados</span>
+                <h3 class="fw-bold mt-2 mb-0 text-white" style="font-size: 2.2rem; font-family: 'Poppins', sans-serif;">{{ total_tickets }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(59,130,246,0.3) !important;">
+                <span style="color: #93c5fd; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;">Abiertos / En Cola</span>
+                <h3 class="fw-bold mt-2 mb-0" style="color: #93c5fd; font-size: 2.2rem; font-family: 'Poppins', sans-serif;">{{ abiertos }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(245,158,11,0.3) !important;">
+                <span style="color: #fde047; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;">En Diagnóstico</span>
+                <h3 class="fw-bold mt-2 mb-0" style="color: #fde047; font-size: 2.2rem; font-family: 'Poppins', sans-serif;">{{ en_proceso }}</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card-dark text-center" style="border-color: rgba(16,185,129,0.3) !important;">
+                <span style="color: #6ee7b7; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;">Resueltos / Cerrados</span>
+                <h3 class="fw-bold mt-2 mb-0" style="color: #6ee7b7; font-size: 2.2rem; font-family: 'Poppins', sans-serif;">{{ resueltos }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE TICKETS -->
+    <div style="background: #121212; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+        <!-- Header + filtros -->
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3" style="padding: 18px 24px; background: #171717; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <span style="font-weight: 800; color: #ffffff; font-size: 0.95rem;">
+                <i class="bi bi-clock-history me-2" style="color: var(--pt-red);"></i> Historial de Requerimientos
+            </span>
+            <div class="filter-btn-group d-flex gap-2 flex-wrap">
+                <a href="{% url 'tickets:user_dashboard' %}" class="{% if not estado_filtro %}active-filter{% endif %}">
+                    Todos
+                </a>
+                <a href="{% url 'tickets:user_dashboard' %}?estado=ABIERTO" class="{% if estado_filtro == 'ABIERTO' %}active-filter{% endif %}">
+                    Abiertos
+                </a>
+                <a href="{% url 'tickets:user_dashboard' %}?estado=EN_PROCESO" class="{% if estado_filtro == 'EN_PROCESO' %}active-filter{% endif %}">
+                    En Diagnóstico
+                </a>
+                <a href="{% url 'tickets:user_dashboard' %}?estado=RESUELTO" class="{% if estado_filtro == 'RESUELTO' %}active-filter{% endif %}">
+                    Resueltos
+                </a>
+            </div>
+        </div>
+
+        {% if tickets %}
+            <div class="table-responsive">
+                <table class="table-dark-custom">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Título del Requerimiento</th>
+                            <th>Categoría</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Técnico Asignado</th>
+                            <th>Fecha</th>
+                            <th class="text-end pe-4">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in tickets %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="ticket-id-tag">#{{ ticket.id|stringformat:"04d" }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="ticket-link">
+                                    {{ ticket.titulo }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="cat-pill">
+                                    <i class="bi bi-tag-fill" style="color: #dc2626;"></i>
+                                    {{ ticket.categoria.nombre }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if ticket.prioridad == 'BAJA' %}
+                                    <span class="badge badge-priority badge-priority-baja">Baja</span>
+                                {% elif ticket.prioridad == 'MEDIA' %}
+                                    <span class="badge badge-priority badge-priority-media">Media</span>
+                                {% elif ticket.prioridad == 'ALTA' %}
+                                    <span class="badge badge-priority badge-priority-alta">Alta</span>
+                                {% else %}
+                                    <span class="badge badge-priority badge-priority-critica">Crítica</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.estado == 'ABIERTO' %}
+                                    <span class="badge-status badge-status-abierto"><i class="bi bi-clock me-1"></i>Abierto</span>
+                                {% elif ticket.estado == 'EN_PROCESO' %}
+                                    <span class="badge-status badge-status-en_proceso"><i class="bi bi-gear-fill me-1"></i>En Diagnóstico</span>
+                                {% elif ticket.estado == 'RESUELTO' %}
+                                    <span class="badge-status badge-status-resuelto"><i class="bi bi-check-circle-fill me-1"></i>Resuelto</span>
+                                {% else %}
+                                    <span class="badge-status badge-status-cerrado"><i class="bi bi-archive-fill me-1"></i>Cerrado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ticket.tecnico_asignado %}
+                                    <div class="d-flex align-items-center gap-1.5" style="color: #93c5fd; font-weight: 700; font-size: 0.85rem;">
+                                        <i class="bi bi-person-check-fill"></i>
+                                        <span>{{ ticket.tecnico_asignado.get_full_name|default:ticket.tecnico_asignado.username }}</span>
+                                    </div>
+                                {% else %}
+                                    <span style="font-size: 0.78rem; color: #fde047; font-weight: 700; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); padding: 3px 8px; border-radius: 6px;">
+                                        Pendiente por Asignar
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="ticket-date-text">{{ ticket.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'tickets:ticket_detail' ticket.pk %}" class="btn-detail">
+                                    <i class="bi bi-eye"></i> Ver Detalle
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-ticket-perforated"></i>
+                <h5>No se encontraron tickets</h5>
+                <p>Aún no has reportado ninguna incidencia o ninguna coincide con el filtro actual.</p>
+                <a href="{% url 'tickets:ticket_create' %}" class="btn btn-pt-primary btn-sm px-4">
+                    <i class="bi bi-plus-circle me-1"></i> Crear mi primer ticket
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
